@@ -10,6 +10,9 @@ public class Algorithm4 {
     /** 迷路情報 */
     private char[][] meiro;
 
+    /** 開始位置 */
+    public static final int[] START_POINT = { 0, 0 };
+
     /** 障害物を示す文字 */
     private static final char BARRIER = '*';
 
@@ -62,6 +65,8 @@ public class Algorithm4 {
             solve(preBranchPoint.getDirection(), preBranchPoint.getPoint());
         }
 
+        System.out.println(
+                String.format("#solve End meiroBranch.size = %s", meiroBranch.size()));
         return this.meiro;
     }
 
@@ -73,8 +78,10 @@ public class Algorithm4 {
         while (flag) {
             checkBranchPoint(d, currentPoint);
             int[] nextPoint = getNextPoint(d, currentPoint);
-            // すでに通った道の場合は、戻っているので削除する。
-            if (this.meiro[currentPoint[0]][currentPoint[1]] == ANSWER_WAY) {
+            // すでに通った道の場合は、戻っているので削除するただし、開始点は削除しない。
+            if (this.meiro[currentPoint[0]][currentPoint[1]] == ANSWER_WAY && (currentPoint[0] != START_POINT[0]
+                    || currentPoint[1] != START_POINT[1])) {
+                removeBranchPoints(currentPoint);
                 removeWay(currentPoint);
             } else {
                 makeWay(currentPoint);
@@ -144,6 +151,20 @@ public class Algorithm4 {
     private void removeWay(int[] point) {
         System.out.println(String.format("#removeWay Point = %s", Arrays.toString(point)));
         meiro[point[0]][point[1]] = INITIAL_WAY;
+    }
+
+    private void removeBranchPoints(int[] targetPoint) {
+        while (true) {
+            BranchPoint bPoint = meiroBranch.pop();
+            if (bPoint == null) {
+                break;
+            }
+            // 位置が違う場合。
+            if (targetPoint[0] != bPoint.getPoint()[0] || targetPoint[1] != bPoint.getPoint()[1]) {
+                meiroBranch.push(bPoint);
+                break;
+            }
+        }
     }
 
     /**
